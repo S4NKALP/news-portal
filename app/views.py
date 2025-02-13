@@ -3,7 +3,7 @@ from .models import Category, SubCategory, News, Advertisement
 from .serializers import CategorySerializer, SubCategorySerializer, NewsSerializer, AdvertisementSerializer
 
 class CategoryViewSet(viewsets.ModelViewSet):
-    queryset = Category.objects.all()
+    queryset = Category.objects.prefetch_related('subcategories')
     serializer_class = CategorySerializer
 
 class SubCategoryViewSet(viewsets.ModelViewSet):
