@@ -30,3 +30,6 @@ static/
 
 # Local settings
 local_settings.py
+
+# push.py
+push.py
