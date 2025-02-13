@@ -1,4 +1,20 @@
 from django.db import models
+
+
+class Organization(models.Model):
+    name = models.CharField(max_length=255)
+    location = models.CharField(max_length=255)
+    email = models.EmailField()
+    phone_no = models.IntegerField()
+    logo = models.ImageField(upload_to="logo")
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = "org"
+
+
 class Category(models.Model):
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=255)
@@ -52,4 +68,3 @@ class Advertisement(models.Model):
     class Meta:
         ordering = ["-id"]
         verbose_name_plural = "ads"
-

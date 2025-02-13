@@ -1,11 +1,13 @@
 from django.contrib import admin
 from .models import Category, SubCategory, News, Advertisement
 
+
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ("id", "name")
     search_fields = ("name",)
     ordering = ("-id",)
+
 
 @admin.register(SubCategory)
 class SubCategoryAdmin(admin.ModelAdmin):
@@ -13,11 +15,13 @@ class SubCategoryAdmin(admin.ModelAdmin):
     search_fields = ("name",)
     ordering = ("-id",)
 
+
 @admin.register(News)
 class NewsAdmin(admin.ModelAdmin):
     list_display = ("id", "title", "img", "description")
     search_fields = ("title",)
     ordering = ("-id",)
+
 
 @admin.register(Advertisement)
 class AdvertisementAdmin(admin.ModelAdmin):
