@@ -1,5 +1,10 @@
 from django.contrib import admin
-from .models import Category, SubCategory, News, Advertisement
+from .models import Category, SubCategory, News, Advertisement, Organization
+
+
+@admin.register(Organization)
+class OrganizationAdmin(admin.ModelAdmin):
+    list_display = ("id", "name", "location", "email", "phone_no", "logo")
 
 
 @admin.register(Category)
