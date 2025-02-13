@@ -30,7 +30,8 @@ class Category(models.Model):
 class SubCategory(models.Model):
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=255)
-    category = models.ForeignKey(Category,related_name="subcategories", on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+
     def __str__(self):
         return self.name
 
@@ -42,7 +43,6 @@ class SubCategory(models.Model):
 class News(models.Model):
     id = models.BigAutoField(primary_key=True)
     title = models.CharField(max_length=255)
-    img = models.ImageField(upload_to="news")
     description = models.TextField()
     sub_category = models.ForeignKey(SubCategory, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -54,6 +54,14 @@ class News(models.Model):
     class Meta:
         ordering = ["-id"]
         verbose_name_plural = "News"
+
+
+class NewsImage(models.Model):
+    news = models.ForeignKey(News, on_delete=models.CASCADE, related_name="images")
+    image = models.ImageField(upload_to="news/images")
+
+    def __str__(self):
+        return f"Image for {self.news.title}"
 
 
 class Advertisement(models.Model):
