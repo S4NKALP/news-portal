@@ -17,3 +17,6 @@ class SubCagtegory(models.Model):
     class Meta:
         ordering = ['-id']
         verbose_name_plural = 'Sub Categories'
+
+class News(models.Model):
+    pass
