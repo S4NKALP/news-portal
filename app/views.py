@@ -1,5 +1,5 @@
 from rest_framework import viewsets
-from .models import Category, SubCagtegory, News, Advertisement
+from .models import Category, SubCategory, News, Advertisement
 from .serializers import CategorySerializer, SubCategorySerializer, NewsSerializer, AdvertisementSerializer
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -7,7 +7,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     serializer_class = CategorySerializer
 
 class SubCategoryViewSet(viewsets.ModelViewSet):
-    queryset = SubCagtegory.objects.all()
+    queryset = SubCategory.objects.all()
     serializer_class = SubCategorySerializer
 
 class NewsViewSet(viewsets.ModelViewSet):

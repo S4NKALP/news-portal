@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Category, SubCagtegory, News, Advertisement
+from .models import Category, SubCategory, News, Advertisement
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -8,7 +8,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class SubCategorySerializer(serializers.ModelSerializer):
     class Meta:
-        model = SubCagtegory
+        model = SubCategory
         fields = "__all__"
 
 class NewsSerializer(serializers.ModelSerializer):

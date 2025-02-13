@@ -1,6 +1,4 @@
 from django.db import models
-
-
 class Category(models.Model):
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=255)
@@ -13,7 +11,7 @@ class Category(models.Model):
         verbose_name_plural = "Categories"
 
 
-class SubCagtegory(models.Model):
+class SubCategory(models.Model):
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=255)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
@@ -31,7 +29,7 @@ class News(models.Model):
     title = models.CharField(max_length=255)
     img = models.ImageField(upload_to="news")
     description = models.TextField()
-    sub_category = models.ForeignKey(SubCagtegory, on_delete=models.CASCADE)
+    sub_category = models.ForeignKey(SubCategory, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, SubCagtegory, News, Advertisement
+from .models import Category, SubCategory, News, Advertisement
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -7,7 +7,7 @@ class CategoryAdmin(admin.ModelAdmin):
     search_fields = ("name",)
     ordering = ("-id",)
 
-@admin.register(SubCagtegory)
+@admin.register(SubCategory)
 class SubCategoryAdmin(admin.ModelAdmin):
     list_display = ("id", "name", "category")
     search_fields = ("name",)
