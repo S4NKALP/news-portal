@@ -14,17 +14,19 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 from django.urls import path, include
-from newsportal.settings import MEDIA_ROOT, MEDIA_URL#, STATIC_URL, STATIC_ROOT
+from newsportal.settings import MEDIA_ROOT, MEDIA_URL, STATIC_URL, STATIC_ROOT
 from django.conf.urls.static import static
 
 
 urlpatterns = [
-    path('api/', include('app.urls')),
-    path("ckeditor5/", include('django_ckeditor_5.urls')),
+    path("api/", include("app.urls")),
+    path("ckeditor5/", include("django_ckeditor_5.urls")),
 ]
 
 urlpatterns += static(MEDIA_URL, document_root=MEDIA_ROOT)
+urlpatterns += static(STATIC_URL, document_root=STATIC_ROOT)
 
-urlpatterns.append(path('', admin.site.urls, name='admin'))
+urlpatterns.append(path("", admin.site.urls, name="admin"))

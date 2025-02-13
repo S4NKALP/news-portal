@@ -30,7 +30,9 @@ class Category(models.Model):
 class SubCategory(models.Model):
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=255)
-    category = models.ForeignKey(Category, related_name='subcategories',  on_delete=models.CASCADE)
+    category = models.ForeignKey(
+        Category, related_name="subcategories", on_delete=models.CASCADE
+    )
 
     def __str__(self):
         return self.name
@@ -44,6 +46,7 @@ class News(models.Model):
     id = models.BigAutoField(primary_key=True)
     title = models.CharField(max_length=255)
     description = models.TextField()
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
     sub_category = models.ForeignKey(SubCategory, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
