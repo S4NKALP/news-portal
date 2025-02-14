@@ -11,14 +11,14 @@ class OrganizationAdmin(admin.ModelAdmin):
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ("id", "name")
     search_fields = ("name",)
-    ordering = ("-id",)
+    ordering = ("id",)
 
 
 @admin.register(SubCategory)
 class SubCategoryAdmin(admin.ModelAdmin):
     list_display = ("id", "name", "category")
     search_fields = ("name",)
-    ordering = ("-id",)
+    ordering = ("id",)
 
 
 class NewsImageInline(admin.TabularInline):
@@ -31,11 +31,11 @@ class NewsAdmin(admin.ModelAdmin):
     inlines = [NewsImageInline]
     list_display = ("id", "title", "description")
     search_fields = ("title",)
-    ordering = ("-id",)
+    ordering = ("id",)
 
 
 @admin.register(Advertisement)
 class AdvertisementAdmin(admin.ModelAdmin):
     list_display = ("id", "is_active", "img", "link")
     search_fields = ("link",)
-    ordering = ("-id",)
+    ordering = ("id",)

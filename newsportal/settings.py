@@ -86,14 +86,20 @@ SESSION_COOKIE_SAMESITE = 'Lax'  # or 'None' if needed
 CSRF_COOKIE_SAMESITE = 'Lax'  # or 'None' if needed
 CSRF_TRUSTED_ORIGINS = [
     'http://192.168.1.93:5173',
-    'http://192.168.18.4:5173'
+    'http://192.168.18.4:5173',
+    'http://192.168.1.68:5173',
+    'http://192.168.1.87:5173',
+    'http://localhost:5173'
 ]
 if DEBUG:
     CSRF_COOKIE_SECURE = False
     SESSION_COOKIE_SECURE = False
 CORS_ALLOWED_ORIGINS = [
    'http://192.168.1.93:5173',
-   'http://192.168.18.4:5173'
+   'http://192.168.18.4:5173',
+   'http://192.168.1.68:5173',
+   'http://192.168.1.87:5173',
+   'http://localhost:5173'
 ]
 
 WSGI_APPLICATION = 'newsportal.wsgi.application'

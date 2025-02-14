@@ -23,7 +23,7 @@ class Category(models.Model):
         return self.name
 
     class Meta:
-        ordering = ["-id"]
+        ordering = ["id"]
         verbose_name_plural = "Categories"
 
 
@@ -36,7 +36,7 @@ class SubCategory(models.Model):
         return self.name
 
     class Meta:
-        ordering = ["-id"]
+        ordering = ["id"]
         verbose_name_plural = "Sub Categories"
 
 
@@ -44,6 +44,7 @@ class News(models.Model):
     id = models.BigAutoField(primary_key=True)
     title = models.CharField(max_length=255)
     description = models.TextField()
+    image = models.ImageField(upload_to="news")
     sub_category = models.ForeignKey(SubCategory, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -52,7 +53,7 @@ class News(models.Model):
         return self.title
 
     class Meta:
-        ordering = ["-id"]
+        ordering = ["id"]
         verbose_name_plural = "News"
 
 
@@ -74,5 +75,5 @@ class Advertisement(models.Model):
         return self.id
 
     class Meta:
-        ordering = ["-id"]
+        ordering = ["id"]
         verbose_name_plural = "ads"
