@@ -1,23 +1,47 @@
 from rest_framework import serializers
-from .models import Category, SubCategory, News, Advertisement
-
+from .models import Category, SubCategory, News, NewsImage, Advertisement, Organization
 
 class SubCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = SubCategory
-        fields = "__all__"
-        depth = 2
-class CategorySerializer(serializers.ModelSerializer):
+        fields = ['id', 'name']
+
+class CategoryListSerializer(serializers.ModelSerializer):
     subcategories = SubCategorySerializer(many=True, read_only=True)
+    
     class Meta:
         model = Category
-        fields = "__all__"
+        fields = ['id', 'name', 'subcategories']
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'name']
+
+class NewsImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NewsImage
+        fields = ['id', 'image']
+
 class NewsSerializer(serializers.ModelSerializer):
+    category = CategorySerializer(read_only=True)
+    sub_category = SubCategorySerializer(read_only=True)
+    images = NewsImageSerializer(many=True, read_only=True)
+    
     class Meta:
         model = News
-        fields = "__all__"
+        fields = [
+            'id', 'title', 'description', 'image', 
+            'category', 'sub_category', 'images',
+            'created_at', 'updated_at'
+        ]
 
 class AdvertisementSerializer(serializers.ModelSerializer):
     class Meta:
         model = Advertisement
-        fields = "__all__"
+        fields = ['id', 'is_active', 'img', 'link']
+
+class OrganizationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Organization
+        fields = ['id', 'name', 'location', 'email', 'phone_no', 'logo']

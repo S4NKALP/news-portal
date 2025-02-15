@@ -1,5 +1,5 @@
 from django.db import models
-
+from django_ckeditor_5.fields import CKEditor5Field
 
 class Organization(models.Model):
     name = models.CharField(max_length=255)
@@ -45,9 +45,10 @@ class SubCategory(models.Model):
 class News(models.Model):
     id = models.BigAutoField(primary_key=True)
     title = models.CharField(max_length=255)
-    description = models.TextField()
+    description = models.TextField(null=True,  blank=True, max_length=30000)
     image = models.ImageField(upload_to="news")
-    sub_category = models.ForeignKey(SubCategory, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    sub_category = models.ForeignKey(SubCategory, on_delete=models.CASCADE, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -74,7 +75,8 @@ class Advertisement(models.Model):
     link = models.CharField(max_length=255)
 
     def __str__(self):
-        return self.id
+        return str(self.id)
+
 
     class Meta:
         ordering = ["id"]

@@ -1,18 +1,12 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from .views import (
-    CategoryViewSet,
-    SubCategoryViewSet,
-    NewsViewSet,
-    AdvertisementViewSet,
-)
-
-router = DefaultRouter()
-router.register(r"categories", CategoryViewSet)
-router.register(r"subcategories", SubCategoryViewSet)
-router.register(r"news", NewsViewSet)
-router.register(r"advertisements", AdvertisementViewSet)
+# urls.py
+from django.urls import path
+from . import views
 
 urlpatterns = [
-    path("", include(router.urls)),
+    path('news/', views.NewsListView.as_view(), name='news-list'),
+    path('news/<int:id>/', views.NewsDetailView.as_view(), name='news-detail'),
+    path('categories/', views.CategoryListView.as_view(), name='category-list'),
+    path('subcategories/', views.SubCategoryListView.as_view(), name='subcategory-list'),
+    path('advertisements/', views.AdvertisementListView.as_view(), name='advertisement-list'),
+    path('organization/', views.OrganizationListView.as_view(), name='organization-list'),
 ]

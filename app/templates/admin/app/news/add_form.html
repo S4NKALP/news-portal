@@ -1,0 +1,212 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+  /* Main container styling */
+  .jazzmin-form-wrapper {
+    padding: 20px;
+    width: 100%;
+    background-color: white;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+  }
+  
+  /* Form layout */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 15px 20px;
+    align-items: start;
+  }
+  
+  /* Field styling */
+  .field-wrapper {
+    margin-bottom: 20px;
+  }
+  
+  .field-label {
+    font-weight: 600;
+    color: #333;
+    margin-top: 8px;
+    text-align: right;
+  }
+  
+  .field-input {
+    width: 100%;
+  }
+  
+  /* Input styling */
+  input[type="text"],
+  textarea,
+  select {
+    width: 100%;
+    max-width: 500px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+  }
+  
+  textarea {
+    min-height: 150px;
+  }
+  
+  /* Error styling */
+  .field-error {
+    color: #e74c3c;
+    font-size: 0.9em;
+    margin-top: 4px;
+  }
+  
+  /* Button styling */
+  .submit-row {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .field-label {
+      text-align: left;
+      margin-bottom: 5px;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="jazzmin-form-wrapper">
+  <form method="post" enctype="multipart/form-data" id="news_form" novalidate>
+    {% csrf_token %}
+    
+    {% if errors %}
+      <div class="errornote" style="margin-bottom: 20px; padding: 10px; background-color: #fef2f2; border-left: 4px solid #e74c3c; color: #e74c3c;">
+        {% blocktranslate count counter=errors|length %}Please correct the error below.{% plural %}Please correct the errors below.{% endblocktranslate %}
+        {{ form.non_field_errors }}
+      </div>
+    {% endif %}
+    
+    <div class="form-grid">
+      <!-- Title Field -->
+      <div class="field-label">{{ form.title.label }}:</div>
+      <div class="field-input">
+        {% if form.title.errors %}
+          <div class="field-error">{{ form.title.errors }}</div>
+        {% endif %}
+        {{ form.title }}
+      </div>
+      
+      <!-- Description Field -->
+      <div class="field-label">{{ form.description.label }}:</div>
+      <div class="field-input">
+        {% if form.description.errors %}
+          <div class="field-error">{{ form.description.errors }}</div>
+        {% endif %}
+        {{ form.description }}
+      </div>
+      
+      <!-- Image Field -->
+      <div class="field-label">{{ form.image.label }}:</div>
+      <div class="field-input">
+        {% if form.image.errors %}
+          <div class="field-error">{{ form.image.errors }}</div>
+        {% endif %}
+        {{ form.image }}
+      </div>
+      
+      <!-- Category Field -->
+      <div class="field-label">{{ form.category.label }}:</div>
+      <div class="field-input">
+        {% if form.category.errors %}
+          <div class="field-error">{{ form.category.errors }}</div>
+        {% endif %}
+        <select name="category" id="{{ form.category.id_for_label }}" onchange="updateSubcategories(this.value)">
+          <option value="">---------</option>
+          {% for category in categories %}
+            <option value="{{ category.id }}" {% if form.category.value|stringformat:"s" == category.id|stringformat:"s" %}selected{% endif %}>
+              {{ category.name }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <!-- Subcategory Field -->
+      <div class="field-label" id="subcategory_label" {% if not form.sub_category.queryset.exists %}style="display: none;"{% endif %}>
+        {{ form.sub_category.label }}:
+      </div>
+      <div class="field-input" id="subcategory_row" {% if not form.sub_category.queryset.exists %}style="display: none;"{% endif %}>
+        {% if form.sub_category.errors %}
+          <div class="field-error">{{ form.sub_category.errors }}</div>
+        {% endif %}
+        <div id="subcategory_container">
+          {{ form.sub_category }}
+        </div>
+      </div>
+    </div>
+    {% for inline_admin_formset in inline_admin_formsets %}
+    {% include inline_admin_formset.opts.template %}
+{% endfor %}
+
+    <div class="submit-row">
+      <input type="submit" name="_save" value="{% translate 'Save' %}" class="default" style="padding: 8px 16px; background-color: #2980b9; color: white; border: none; border-radius: 4px; cursor: pointer;" />
+    </div>
+  </form>
+</div>
+
+<script>
+function updateSubcategories(categoryId) {
+    const labelElement = document.getElementById('subcategory_label');
+    const rowElement = document.getElementById('subcategory_row');
+    
+    if (!categoryId) {
+        labelElement.style.display = 'none';
+        rowElement.style.display = 'none';
+        return;
+    }
+    
+    // Show elements
+    labelElement.style.display = 'block';
+    rowElement.style.display = 'block';
+    
+    // Show loading indicator
+    const container = document.getElementById('subcategory_container');
+    container.innerHTML = '<div style="color: #2980b9;">Loading subcategories...</div>';
+    
+    // Fetch subcategories with AJAX
+    fetch(`{% url 'admin:get_subcategories' %}?category_id=${categoryId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.length === 0) {
+                container.innerHTML = '<select id="{{ form.sub_category.id_for_label }}" name="sub_category"><option value="">No subcategories available</option></select>';
+            } else {
+                let selectHtml = `<select id="{{ form.sub_category.id_for_label }}" name="sub_category">`;
+                data.forEach(item => {
+                    selectHtml += `<option value="${item.id}">${item.name}</option>`;
+                });
+                selectHtml += '</select>';
+                container.innerHTML = selectHtml;
+            }
+        })
+        .catch(error => {
+            container.innerHTML = '<div style="color: #e74c3c;">Error loading subcategories</div>';
+            console.error('Error:', error);
+        });
+}
+
+// Initialize subcategories if category is already selected
+document.addEventListener('DOMContentLoaded', function() {
+    const categorySelect = document.getElementById('{{ form.category.id_for_label }}');
+    if (categorySelect.value) {
+        updateSubcategories(categorySelect.value);
+    }
+});
+</script>
+{% endblock %}
