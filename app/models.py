@@ -1,6 +1,7 @@
 from django.db import models
 from django_ckeditor_5.fields import CKEditor5Field
 
+
 class Organization(models.Model):
     name = models.CharField(max_length=255)
     location = models.CharField(max_length=255)
@@ -45,10 +46,12 @@ class SubCategory(models.Model):
 class News(models.Model):
     id = models.BigAutoField(primary_key=True)
     title = models.CharField(max_length=255)
-    description = models.TextField(null=True,  blank=True, max_length=30000)
+    description = models.TextField(null=True, blank=True, max_length=30000)
     image = models.ImageField(upload_to="news")
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    sub_category = models.ForeignKey(SubCategory, on_delete=models.CASCADE, null=True, blank=True)
+    sub_category = models.ForeignKey(
+        SubCategory, on_delete=models.CASCADE, null=True, blank=True
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -62,7 +65,7 @@ class News(models.Model):
 
 class NewsImage(models.Model):
     news = models.ForeignKey(News, on_delete=models.CASCADE, related_name="images")
-    image = models.ImageField(upload_to="news/images")
+    image = models.ImageField(upload_to="news/images", blank=True)
 
     def __str__(self):
         return f"Image for {self.news.title}"
@@ -76,7 +79,6 @@ class Advertisement(models.Model):
 
     def __str__(self):
         return str(self.id)
-
 
     class Meta:
         ordering = ["id"]
