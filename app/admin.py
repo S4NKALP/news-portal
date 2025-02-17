@@ -163,6 +163,7 @@ class NewsAdmin(admin.ModelAdmin):
             form = self.form()
 
         context = {
+            **self.admin_site.each_context(request),
             "form": form,
             "categories": Category.objects.all(),
             "opts": self.model._meta,
