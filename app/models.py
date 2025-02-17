@@ -48,10 +48,12 @@ class News(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True, max_length=30000)
     image = models.ImageField(upload_to="news")
+    video = models.URLField(upload_to="news/videos", blank=True, related_name="videos")
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     sub_category = models.ForeignKey(
         SubCategory, on_delete=models.CASCADE, null=True, blank=True
     )
+    is_video = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
