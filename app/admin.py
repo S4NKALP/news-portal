@@ -29,12 +29,25 @@ class SubCategoryAdmin(admin.ModelAdmin):
 class NewsImageInline(admin.TabularInline):
     model = NewsImage
     extra = 1
+    fields = ["image"]
 
 
 class NewsAdminForm(forms.ModelForm):
     class Meta:
         model = News
-        fields = ["title", "description", "image", "category", "sub_category"]
+        fields = [
+            "title",
+            "description",
+            "image",
+            "video",
+            "category",
+            "sub_category",
+            "is_video",
+        ]
+        widgets = {
+            "description": forms.Textarea(attrs={"rows": 4}),
+            "video": forms.URLInput(attrs={"placeholder": "Enter video URL"}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -56,12 +69,36 @@ class NewsAdminForm(forms.ModelForm):
             except (ValueError, TypeError):
                 pass
 
+    def clean(self):
+        cleaned_data = super().clean()
+        is_video = cleaned_data.get("is_video")
+        video = cleaned_data.get("video")
+        image = cleaned_data.get("image")
+
+        if is_video and not video:
+            self.add_error("video", "Video URL is required when is_video is selected.")
+        elif not is_video and not image:
+            self.add_error("image", "Image is required when is_video is not selected.")
+
+        return cleaned_data
+
 
 @admin.register(News)
 class NewsAdmin(admin.ModelAdmin):
     form = NewsAdminForm
     inlines = [NewsImageInline]
-    list_display = ["title", "category", "sub_category", "created_at", "updated_at"]
+    list_display = [
+        "title",
+        "category",
+        "sub_category",
+        "is_video",
+        "created_at",
+        "updated_at",
+    ]
+    list_filter = ["category", "is_video", "created_at"]
+    search_fields = ["title", "description"]
+    date_hierarchy = "created_at"
+    readonly_fields = ["created_at", "updated_at"]
 
     def get_urls(self):
         urls = super().get_urls()
@@ -76,6 +113,11 @@ class NewsAdmin(admin.ModelAdmin):
                 self.admin_site.admin_view(self.get_subcategories),
                 name="get_subcategories",
             ),
+            path(
+                "delete_news_image/",
+                self.admin_site.admin_view(self.delete_news_image),
+                name="delete_news_image",
+            ),
         ]
         return custom_urls + urls
 
@@ -88,34 +130,41 @@ class NewsAdmin(admin.ModelAdmin):
             return JsonResponse(list(subcategories), safe=False)
         return JsonResponse([], safe=False)
 
+    def delete_news_image(self, request):
+        image_id = request.GET.get("image_id")
+        if image_id:
+            try:
+                news_image = NewsImage.objects.get(id=image_id)
+                news_image.delete()
+                return JsonResponse({"success": True})
+            except NewsImage.DoesNotExist:
+                pass
+        return JsonResponse({"success": False})
+
     def add_news_view(self, request):
-        if request.method == "POST" and "_select_category" in request.POST:
-            # Just handling category selection
-            form = self.form(request.POST)
-            if "category" in request.POST and request.POST["category"]:
-                category_id = request.POST["category"]
-                form.fields["sub_category"].queryset = SubCategory.objects.filter(
-                    category_id=category_id
-                )
-        elif request.method == "POST":
-            # Final form submission
+        if request.method == "POST":
             form = self.form(request.POST, request.FILES)
             if form.is_valid():
                 news = form.save()
-                self.message_user(request, "News created successfully.")
-                return redirect(reverse("admin:app_news_changelist"))
 
+                # Handle additional images
+                news_images = request.FILES.getlist("news_images")
+                for image in news_images:
+                    NewsImage.objects.create(news=news, image=image)
+
+                self.message_user(request, "News created successfully.")
+                if "_addanother" in request.POST:
+                    return redirect(reverse("admin:news_news_add"))
+                elif "_continue" in request.POST:
+                    return redirect(reverse("admin:news_news_change", args=[news.pk]))
+                else:
+                    return redirect(reverse("admin:news_news_changelist"))
         else:
             form = self.form()
 
-        # Get all categories for the dropdown
-        categories = Category.objects.all()
-
-        # Prepare context for the template
         context = {
             "form": form,
-            **site.each_context(request),
-            "categories": categories,
+            "categories": Category.objects.all(),
             "opts": self.model._meta,
             "has_view_permission": self.has_view_permission(request),
             "has_add_permission": self.has_add_permission(request),
@@ -123,7 +172,6 @@ class NewsAdmin(admin.ModelAdmin):
             "has_delete_permission": self.has_delete_permission(request),
             "app_label": self.model._meta.app_label,
         }
-
         return render(request, "admin/app/news/add_form.html", context)
 
 

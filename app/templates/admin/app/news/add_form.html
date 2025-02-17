@@ -29,6 +29,12 @@
         border-color: #80bdff;
         box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
     }
+    .video-fields {
+        display: none;
+    }
+    .video-fields.show {
+        display: block;
+    }
     </style>
 {% endblock %}
 {% block content %}
@@ -40,7 +46,10 @@
                         <a class="nav-link active" data-toggle="tab" href="#general">General</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#news-images">News Images</a>
+                        <a class="nav-link" data-toggle="tab" href="#media">Media</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#additional-images">Additional Images</a>
                     </li>
                 </ul>
             </div>
@@ -48,6 +57,7 @@
                 {% csrf_token %}
                 <div class="card-body">
                     <div class="tab-content">
+                        <!-- General Tab -->
                         <div class="tab-pane fade show active" id="general">
                             <div class="row">
                                 <div class="col-md-6">
@@ -83,17 +93,66 @@
                             <div class="form-group">
                                 <label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
                                 {{ form.description|add_class:"form-control" }}
-                            </div>
-                            <div class="form-group">
-                                <label for="{{ form.image.id_for_label }}">{{ form.image.label }}</label>
-                                {{ form.image|add_class:"form-control-file" }}
+                                {% if form.description.errors %}<div class="invalid-feedback d-block">{{ form.description.errors }}</div>{% endif %}
                             </div>
                         </div>
-                        <div class="tab-pane fade" id="news-images">
+                        <!-- Media Tab -->
+                        <div class="tab-pane fade" id="media">
+                            <div class="form-group">
+                                <div class="custom-control custom-checkbox mb-3">
+                                    <input type="checkbox"
+                                           class="custom-control-input"
+                                           id="{{ form.is_video.id_for_label }}"
+                                           name="is_video"
+                                           {% if form.is_video.value %}checked{% endif %}
+                                           onchange="toggleVideoFields(this.checked)">
+                                    <label class="custom-control-label" for="{{ form.is_video.id_for_label }}">Is this a video news item?</label>
+                                </div>
+                            </div>
+                            <div class="video-fields {% if form.is_video.value %}show{% endif %}">
+                                <div class="form-group">
+                                    <label for="{{ form.video.id_for_label }}">{{ form.video.label }}</label>
+                                    {{ form.video|add_class:"form-control" }}
+                                    {% if form.video.errors %}<div class="invalid-feedback d-block">{{ form.video.errors }}</div>{% endif %}
+                                </div>
+                            </div>
+                            <div class="image-fields {% if not form.is_video.value %}show{% endif %}">
+                                <div class="form-group">
+                                    <label for="{{ form.image.id_for_label }}">{{ form.image.label }}</label>
+                                    {{ form.image|add_class:"form-control-file" }}
+                                    {% if form.image.errors %}<div class="invalid-feedback d-block">{{ form.image.errors }}</div>{% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Additional Images Tab -->
+                        <div class="tab-pane fade" id="additional-images">
                             <div class="form-group">
                                 <label>Upload Additional News Images</label>
-                                <input type="file" name="news_images" multiple class="form-control">
+                                <input type="file" name="news_images" multiple class="form-control-file">
                             </div>
+                            {% if object and object.additional_images.all %}
+                                <div class="mt-4">
+                                    <h5>Existing Additional Images</h5>
+                                    <div class="row">
+                                        {% for news_image in object.additional_images.all %}
+                                            <div class="col-md-3 mb-3">
+                                                <div class="card">
+                                                    <img src="{{ news_image.image.url }}"
+                                                         class="card-img-top"
+                                                         alt="News image">
+                                                    <div class="card-body">
+                                                        <button type="button"
+                                                                class="btn btn-danger btn-sm"
+                                                                onclick="deleteNewsImage({{ news_image.id }})">
+                                                            Delete
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -106,32 +165,73 @@
         </div>
     </div>
     <script>
-function updateSubcategories(categoryId) {
-    const wrapper = document.getElementById('subcategory_wrapper');
-    const container = document.getElementById('subcategory_container');
+    function updateSubcategories(categoryId) {
+        const wrapper = document.getElementById('subcategory_wrapper');
+        const container = document.getElementById('subcategory_container');
 
-    if (!categoryId) {
-        wrapper.style.display = 'none';
-        return;
+        if (!categoryId) {
+            wrapper.style.display = 'none';
+            return;
+        }
+
+        wrapper.style.display = 'block';
+        container.innerHTML = '<div class="text-info">Loading subcategories...</div>';
+
+        fetch(`{% url 'admin:get_subcategories' %}?category_id=${categoryId}`)
+            .then(response => response.json())
+            .then(data => {
+                let selectHtml = `<select name="sub_category" class="form-control">`;
+                selectHtml += `<option value="">Select Subcategory</option>`;
+                data.forEach(item => {
+                    selectHtml += `<option value="${item.id}">${item.name}</option>`;
+                });
+                selectHtml += '</select>';
+                container.innerHTML = selectHtml;
+            })
+            .catch(() => {
+                container.innerHTML = '<div class="text-danger">Error loading subcategories</div>';
+            });
     }
 
-    wrapper.style.display = 'block';
-    container.innerHTML = '<div class="text-info">Loading subcategories...</div>';
+    function toggleVideoFields(isVideo) {
+        const videoFields = document.querySelector('.video-fields');
+        const imageFields = document.querySelector('.image-fields');
 
-    fetch(`{% url 'admin:get_subcategories' %}?category_id=${categoryId}`)
-        .then(response => response.json())
-        .then(data => {
-            let selectHtml = `<select name="sub_category" class="form-control">`;
-            selectHtml += `<option value="">Select Subcategory</option>`;
-            data.forEach(item => {
-                selectHtml += `<option value="${item.id}">${item.name}</option>`;
+        if (isVideo) {
+            videoFields.classList.add('show');
+            imageFields.classList.remove('show');
+        } else {
+            videoFields.classList.remove('show');
+            imageFields.classList.add('show');
+        }
+    }
+
+    function deleteNewsImage(imageId) {
+        if (confirm('Are you sure you want to delete this image?')) {
+            fetch(`{% url 'admin:delete_news_image' %}?image_id=${imageId}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error deleting image');
+                }
+            })
+            .catch(() => {
+                alert('Error deleting image');
             });
-            selectHtml += '</select>';
-            container.innerHTML = selectHtml;
-        })
-        .catch(() => {
-            container.innerHTML = '<div class="text-danger">Error loading subcategories</div>';
-        });
-}
+        }
+    }
+
+    // Initialize the form based on initial values
+    document.addEventListener('DOMContentLoaded', function() {
+        const isVideo = document.getElementById('{{ form.is_video.id_for_label }}').checked;
+        toggleVideoFields(isVideo);
+    });
     </script>
 {% endblock %}

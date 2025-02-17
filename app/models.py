@@ -48,7 +48,7 @@ class News(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True, max_length=30000)
     image = models.ImageField(upload_to="news")
-    video = models.URLField(upload_to="news/videos", blank=True, related_name="videos")
+    video = models.URLField(blank=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     sub_category = models.ForeignKey(
         SubCategory, on_delete=models.CASCADE, null=True, blank=True
