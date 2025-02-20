@@ -54,6 +54,7 @@ class News(models.Model):
         SubCategory, on_delete=models.CASCADE, null=True, blank=True
     )
     is_video = models.BooleanField(default=False)
+    is_feature = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

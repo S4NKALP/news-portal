@@ -43,6 +43,7 @@ class NewsAdminForm(forms.ModelForm):
             "category",
             "sub_category",
             "is_video",
+            "is_feature",
         ]
         widgets = {
             "description": forms.Textarea(attrs={"rows": 4}),
@@ -92,6 +93,7 @@ class NewsAdmin(admin.ModelAdmin):
         "category",
         "sub_category",
         "is_video",
+        "is_feature",
         "created_at",
         "updated_at",
     ]
