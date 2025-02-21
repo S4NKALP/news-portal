@@ -53,7 +53,7 @@ class NewsSerializer(serializers.ModelSerializer):
 class AdvertisementSerializer(serializers.ModelSerializer):
     class Meta:
         model = Advertisement
-        fields = ["id", "is_active", "img", "link", "ads_type"]
+        fields = ["id", "is_active", "img", "link", "ads_types"]
 
 
 class OrganizationSerializer(serializers.ModelSerializer):
