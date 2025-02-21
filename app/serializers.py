@@ -44,7 +44,8 @@ class NewsSerializer(serializers.ModelSerializer):
             "sub_category",
             "images",
             "is_feature",
-            "is_video,created_at",
+            "is_video",
+            "created_at",
             "updated_at",
         ]
 
