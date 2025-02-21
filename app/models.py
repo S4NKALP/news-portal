@@ -79,6 +79,9 @@ class Advertisement(models.Model):
     is_active = models.BooleanField(default=True)
     img = models.ImageField(upload_to="advertisement")
     link = models.CharField(max_length=255)
+    ads_types = models.CharField(
+        choices=[("bannerAds", "bannerAds"), ("sideAds", "sideAds")], max_length=255
+    )
 
     def __str__(self):
         return str(self.id)

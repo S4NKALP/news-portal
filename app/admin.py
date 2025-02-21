@@ -180,6 +180,6 @@ class NewsAdmin(admin.ModelAdmin):
 
 @admin.register(Advertisement)
 class AdvertisementAdmin(admin.ModelAdmin):
-    list_display = ("id", "is_active", "img", "link")
+    list_display = ("id", "is_active", "img", "link", "ads_types")
     search_fields = ("link",)
     ordering = ("id",)
